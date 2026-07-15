@@ -41,7 +41,7 @@ class AIHistoryResponse(BaseModel):
     feature_type: str
     input_text: str
     output_text: str
-    metadata: Optional[Any] = None
+    metadata_json: Optional[Any] = None
     created_at: datetime
 
     class Config:

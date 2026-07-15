@@ -86,32 +86,32 @@ export default function DashboardPage() {
             value={stats.activeProjects}
             icon={FolderKanban}
             description="Total active projects"
-            gradient="from-purple-500/20 to-purple-600/10"
             iconColor="text-purple-500"
+            borderColor="border-l-purple-500"
           />
           <StatCard
             title="Assigned Tasks"
             value={stats.assignedTasks}
             icon={CheckSquare}
             description="Tasks assigned to you"
-            gradient="from-blue-500/20 to-blue-600/10"
             iconColor="text-blue-500"
+            borderColor="border-l-blue-500"
           />
           <StatCard
             title="Due Today"
             value={stats.tasksDueToday}
             icon={CalendarClock}
             description="Tasks due today"
-            gradient="from-orange-500/20 to-orange-600/10"
             iconColor="text-orange-500"
+            borderColor="border-l-orange-500"
           />
           <StatCard
             title="Completed"
             value={stats.completedTasks}
             icon={CheckCircle2}
             description="Total completed tasks"
-            gradient="from-green-500/20 to-green-600/10"
             iconColor="text-green-500"
+            borderColor="border-l-green-500"
           />
         </div>
       )}
@@ -225,27 +225,27 @@ function StatCard({
   value,
   icon: Icon,
   description,
-  gradient,
   iconColor,
+  borderColor,
 }: {
   title: string;
   value: number;
   icon: any;
   description: string;
-  gradient: string;
   iconColor: string;
+  borderColor: string;
 }) {
   return (
-    <Card className="relative overflow-hidden">
-      <div className={`absolute inset-0 bg-gradient-to-br ${gradient}`} />
-      <CardContent className="relative p-6">
+    <Card className={`relative overflow-hidden border-l-4 ${borderColor}`}>
+      <CardContent className="p-6">
         <div className="flex items-center justify-between mb-3">
-          <div className={`p-2 rounded-lg bg-background/80 ${iconColor}`}>
+          <div className={`p-2.5 rounded-xl bg-secondary ${iconColor}`}>
             <Icon className="h-5 w-5" />
           </div>
         </div>
         <div className="text-2xl font-bold">{value}</div>
         <p className="text-sm text-muted-foreground mt-1">{title}</p>
+        <p className="text-xs text-muted-foreground/60 mt-0.5">{description}</p>
       </CardContent>
     </Card>
   );

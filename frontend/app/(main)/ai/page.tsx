@@ -32,7 +32,7 @@ export default function AIPage() {
 
   const { register: regBreakdown, handleSubmit: handleBreakdown } = useForm();
   const { register: regBug, handleSubmit: handleBug } = useForm();
-  const { register: regDocs, handleSubmit: handleDocs } = useForm();
+  const { register: regDocs, handleSubmit: handleDocsForm } = useForm();
 
   const handleTaskBreakdown = async (data: any) => {
     setLoading(true);
@@ -92,7 +92,7 @@ export default function AIPage() {
         <div>
           <h1 className="text-3xl font-bold">AI Features</h1>
           <p className="text-muted-foreground mt-1">
-            Powered by Google Gemini AI
+            Powered by OpenRouter AI
           </p>
         </div>
       </div>
@@ -277,7 +277,7 @@ export default function AIPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleDocs(handleDocs)} className="space-y-4">
+                <form onSubmit={handleDocsForm(handleDocs)} className="space-y-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Project Name</label>
                     <Input

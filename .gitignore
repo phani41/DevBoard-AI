@@ -52,3 +52,7 @@ frontend/next-env.d.ts
 
 # Docker
 docker-compose.override.yml
+
+# Windows reserved device names
+NUL
+

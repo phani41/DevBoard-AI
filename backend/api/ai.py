@@ -13,7 +13,7 @@ from schemas.ai import (
     AIHistoryResponse,
 )
 from services.auth_service import get_current_user
-from services.gemini_service import gemini_service
+from services.openrouter_service import openrouter_service
 
 router = APIRouter(prefix="/api/ai", tags=["AI Features"])
 
@@ -24,14 +24,14 @@ def _save_history(
     feature_type: str,
     input_text: str,
     output_text: str,
-    metadata: dict | None = None,
+    metadata_json: dict | None = None,
 ):
     history = AIHistory(
         user_id=user_id,
         feature_type=feature_type,
         input_text=input_text,
         output_text=output_text,
-        metadata=metadata,
+        metadata_json=metadata_json,
     )
     db.add(history)
     db.commit()
@@ -43,7 +43,7 @@ def task_breakdown(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    result = gemini_service.task_breakdown(request.task_title, request.description)
+    result = openrouter_service.task_breakdown(request.task_title, request.description)
 
     _save_history(
         db=db,
@@ -62,7 +62,7 @@ def explain_bug(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    result = gemini_service.explain_bug(request.error_message, request.code_context)
+    result = openrouter_service.explain_bug(request.error_message, request.code_context)
 
     _save_history(
         db=db,
@@ -81,7 +81,7 @@ def generate_documentation(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    content = gemini_service.generate_documentation(
+    content = openrouter_service.generate_documentation(
         project_name=request.project_name,
         description=request.description,
         features=request.features,
@@ -94,7 +94,7 @@ def generate_documentation(
         feature_type="documentation",
         input_text=f"Doc type: {request.doc_type}\nProject: {request.project_name}",
         output_text=content,
-        metadata={"doc_type": request.doc_type},
+        metadata_json={"doc_type": request.doc_type},
     )
 
     return DocumentationResponse(content=content, doc_type=request.doc_type)

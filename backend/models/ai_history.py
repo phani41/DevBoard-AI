@@ -12,7 +12,7 @@ class AIHistory(Base):
     feature_type = Column(String(50), nullable=False)
     input_text = Column(Text, nullable=False)
     output_text = Column(Text, nullable=False)
-    metadata = Column(JSON, nullable=True)
+    metadata_json = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     def __repr__(self):

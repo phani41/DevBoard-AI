@@ -166,7 +166,7 @@ export interface AIHistory {
   feature_type: string;
   input_text: string;
   output_text: string;
-  metadata?: any;
+  metadata_json?: any;
   created_at: string;
 }
 
