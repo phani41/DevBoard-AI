@@ -3,6 +3,17 @@ Email service using Resend API for transactional emails.
 
 Provides methods for sending password reset, welcome, and invitation emails
 with clean HTML templates and plain text fallbacks.
+
+Environment-aware sender address:
+- Development: auto-uses `onboarding@resend.dev` (Resend's default sender,
+  no domain verification needed in development)
+- Production: uses FROM_EMAIL from environment variables
+  (requires a verified domain in Resend)
+
+Safety guarantees:
+- Never crashes the FastAPI application
+- Never exposes the API key in logs or error messages
+- Gracefully handles missing configuration
 """
 
 from typing import Optional
@@ -16,20 +27,38 @@ logger = logging.getLogger(__name__)
 class EmailService:
     """Production-grade email service using Resend API.
 
-    Configured via environment variables (RESEND_API_KEY, FROM_EMAIL, etc.).
+    Configured via environment variables (RESEND_API_KEY, FROM_NAME, etc.).
     Gracefully handles failures without crashing the API.
+
+    The sender address (from_email) is auto-selected based on ENVIRONMENT:
+    - development -> onboarding@resend.dev  (no domain setup needed)
+    - production  -> FROM_EMAIL from .env    (verified domain required)
     """
 
     def __init__(self) -> None:
         self.api_key: str = settings.RESEND_API_KEY
-        self.from_email: str = settings.FROM_EMAIL
+        self.from_email: str = settings.effective_from_email
         self.from_name: str = settings.FROM_NAME
         self.frontend_url: str = settings.FRONTEND_URL.rstrip("/")
         self.enabled: bool = bool(self.api_key and self.from_email)
 
         if self.enabled:
             resend.api_key = self.api_key
-            logger.info("Resend email service initialized")
+            logger.info(
+                "Resend email service initialized (from: %s, env: %s)",
+                self.from_email,
+                settings.ENVIRONMENT,
+            )
+        else:
+            missing = []
+            if not self.api_key:
+                missing.append("RESEND_API_KEY")
+            if not self.from_email:
+                missing.append("FROM_EMAIL")
+            logger.warning(
+                "Resend email service disabled — missing: %s",
+                ", ".join(missing),
+            )
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -42,10 +71,14 @@ class EmailService:
         html: str,
         text: str = "",
     ) -> bool:
-        """Low-level send wrapper. Returns True on success, False on failure."""
+        """Low-level send wrapper. Returns True on success, False on failure.
+
+        Never crashes the API — all exceptions are caught and logged.
+        Never exposes the API key in logs or error messages.
+        """
         if not self.enabled:
-            logger.warning(
-                "Resend not configured. Would send email to %s: %s",
+            logger.info(
+                "Email not sent (service disabled): to=%s, subject=%s",
                 to_email,
                 subject,
             )
@@ -60,14 +93,29 @@ class EmailService:
                 "text": text or None,
             }
             response = resend.Emails.send(params)
-            logger.info("Email sent to %s (id=%s)", to_email, response.get("id"))
+            logger.info(
+                "Email sent successfully: to=%s, id=%s, subject=%s",
+                to_email,
+                response.get("id"),
+                subject,
+            )
             return True
+        except resend.exceptions.ResendError as exc:
+            logger.error(
+                "Resend API error sending email to %s: %s",
+                to_email,
+                exc,
+            )
+            return False
         except Exception as exc:
-            logger.error("Failed to send email to %s: %s", to_email, exc)
+            logger.error(
+                "Unexpected error sending email to %s: %s",
+                to_email,
+                exc,
+            )
             return False
 
-    @staticmethod
-    def _build_html_template(body_html: str) -> str:
+    def _build_html_template(self, body_html: str) -> str:
         """Wrap body HTML in a reusable email template."""
         return f"""<!DOCTYPE html>
 <html lang="en">

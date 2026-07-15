@@ -160,10 +160,13 @@ CORS_ORIGINS=http://localhost:3000
 
 # Resend Email (get your API key at https://resend.com/api-keys)
 RESEND_API_KEY=re_xxxxxxxxxxxx
-FROM_EMAIL=noreply@yourdomain.com
 FROM_NAME=DevBoard AI
 FRONTEND_URL=http://localhost:3000
 RESET_TOKEN_EXPIRE_MINUTES=30
+
+# Environment (development | production)
+# Development automatically uses onboarding@resend.dev for email
+ENVIRONMENT=development
 ```
 
 #### Frontend (.env.local)
@@ -175,164 +178,48 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 
 DevBoard AI uses [Resend](https://resend.com) for sending transactional emails (password reset, welcome, invitations).
 
-### Getting a Resend API Key
+### Development Setup (FREE)
+
+In development mode, you don't need to verify a domain. Resend provides a default sender:
 
 1. Sign up at [resend.com](https://resend.com)
 2. Go to **API Keys** in the dashboard
 3. Create a new API key
 4. Copy the key (starts with `re_...`)
-
-### Verifying Your Domain
-
-For production, you'll need to verify a domain in Resend:
-
-1. Go to **Domains** in the Resend dashboard
-2. Add your domain
-3. Add the provided DNS records (TXT, CNAME) to your DNS provider
-4. Wait for verification (usually a few minutes)
-
-For development, you can use Resend's test mode (emails are logged but not delivered).
-
-### Configuring Environment
+5. Set these in your `.env`:
 
 ```env
+ENVIRONMENT=development
+RESEND_API_KEY=re_xxxxxxxxxxxx
+FROM_NAME=DevBoard AI
+# FROM_EMAIL is optional in development - onboarding@resend.dev is used automatically
+```
+
+> **Note**: In development mode, emails are only sent to the Resend account owner's email address (the one you registered with). This is a Resend limitation for the free tier.
+
+### Production Setup
+
+For production, you need to verify your own domain:
+
+1. Go to **Domains** in the [Resend dashboard](https://resend.com/domains)
+2. Add your domain (e.g., `yourdomain.com`)
+3. Add the provided DNS records (TXT, CNAME) to your DNS provider
+4. Wait for verification (usually a few minutes)
+5. Configure your `.env`:
+
+```env
+ENVIRONMENT=production
 RESEND_API_KEY=re_xxxxxxxxxxxx
 FROM_EMAIL=noreply@yourdomain.com
 FROM_NAME=DevBoard AI
-FRONTEND_URL=https://yourdomain.com  # Production URL
-RESET_TOKEN_EXPIRE_MINUTES=30
+FRONTEND_URL=https://yourdomain.com
 ```
 
-> **Note**: If `RESEND_API_KEY` is not set, the email service logs a warning and returns `False` without crashing the API. This allows the application to run without email functionality during development.
+### How Environment Detection Works
 
-## 🔐 Password Reset Flow
+The email service automatically selects the correct sender address:
+- **`ENVIRONMENT=development`** (or unset) -> uses `onboarding@resend.dev`
+- **`ENVIRONMENT=production`** -> uses `FROM_EMAIL` from your `.env` file
 
-1. User clicks **"Forgot Password?"** on the login page
-2. User enters their email address
-3. Backend generates a secure random token (`secrets.token_urlsafe(48)`)
-4. Token and expiry (30 min) are stored in the database
-5. Resend sends an HTML email with a reset link
-6. User clicks the link and is taken to the reset page
-7. User enters a new password
-8. Token is validated and the password is updated
-9. Token is cleared (single-use)
-10. User is redirected to login
+No code changes needed when switching between environments.
 
-**Security measures:**
-- Same response returned whether email exists or not (prevents email enumeration)
-- Tokens expire after 30 minutes
-- Single-use tokens (cleared after successful reset)
-- Tokens are generated using Python's `secrets` module
-- Password is bcrypt-hashed before storage
-
-## 📁 Project Structure
-
-```
-├── backend/
-│   ├── api/           # API route handlers
-│   ├── models/        # SQLAlchemy models
-│   ├── schemas/       # Pydantic schemas
-│   ├── services/      # Business logic (auth, email, AI)
-│   ├── database/      # DB configuration
-│   ├── middleware/     # Auth middleware
-│   ├── migrations/    # Alembic migrations
-│   ├── utils/         # Helper functions
-│   └── main.py        # FastAPI application
-│
-├── frontend/
-│   ├── app/           # Next.js pages (App Router)
-│   ├── components/    # React components
-│   ├── hooks/         # Custom React hooks
-│   ├── services/      # API client
-│   ├── types/         # TypeScript types
-│   └── lib/           # Utility functions
-│
-└── README.md
-```
-
-## 📡 API Endpoints
-
-### Authentication
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/register` | Register new user |
-| POST | `/api/login` | Login user |
-| GET | `/api/me` | Get current user |
-| POST | `/api/forgot-password` | Request password reset email |
-| POST | `/api/reset-password` | Reset password with token |
-
-### Projects
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/projects` | List all projects |
-| POST | `/api/projects` | Create project |
-| GET | `/api/projects/{id}` | Get project details |
-| PUT | `/api/projects/{id}` | Update project |
-| DELETE | `/api/projects/{id}` | Delete project |
-
-### Tasks
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/tasks` | List tasks (with filters) |
-| POST | `/api/tasks` | Create task |
-| GET | `/api/tasks/{id}` | Get task details |
-| PUT | `/api/tasks/{id}` | Update task |
-| DELETE | `/api/tasks/{id}` | Delete task |
-| PUT | `/api/tasks/{id}/reorder` | Reorder task (Kanban) |
-
-### AI Features
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/ai/task-breakdown` | Break down task into subtasks |
-| POST | `/api/ai/bug-explain` | Explain bug/error |
-| POST | `/api/ai/documentation` | Generate documentation |
-
-### Comments
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/tasks/{id}/comments` | List comments |
-| POST | `/api/tasks/{id}/comments` | Add comment |
-
-## 🚢 Deployment
-
-### Backend (Render)
-
-1. Push the repository to GitHub
-2. Create a new **Web Service** on [Render](https://render.com)
-3. Connect your GitHub repository
-4. Set:
-   - **Root Directory**: `backend`
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
-5. Add all environment variables from `.env.example`
-6. Deploy
-
-### Frontend (Vercel)
-
-1. Create a new project on [Vercel](https://vercel.com)
-2. Import your GitHub repository
-3. Set:
-   - **Root Directory**: `frontend`
-   - **Framework Preset**: Next.js
-4. Add environment variable:
-   - `NEXT_PUBLIC_API_URL` = your Render backend URL
-5. Deploy
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is for demonstration purposes.
-
-## 🙏 Acknowledgments
-
-- OpenRouter for AI model access
-- Resend for transactional email infrastructure
-- shadcn/ui for beautiful components
-- The open-source community
