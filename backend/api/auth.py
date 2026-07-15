@@ -68,12 +68,8 @@ def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db
     user.reset_token_expires = expires
     db.commit()
 
-    # Build reset URL
-    frontend_url = settings.FRONTEND_URL.rstrip("/")
-    reset_url = f"{frontend_url}/reset-password?token={token}"
-
-    # Send email
-    email_service.send_password_reset_email(user.email, reset_url)
+    # Send password reset email via Resend
+    email_service.send_password_reset_email(user.email, token)
 
     return PasswordResetResponse(
         message="If an account with that email exists, a password reset link has been sent."
