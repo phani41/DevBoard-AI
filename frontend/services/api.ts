@@ -243,6 +243,29 @@ class ApiService {
   async getAIHistory() {
     return this.request<any[]>("/api/ai/history");
   }
+
+  // Password Reset
+  async forgotPassword(email: string) {
+    return this.request<{ message: string }>(
+      "/api/forgot-password",
+      {
+        method: "POST",
+        body: JSON.stringify({ email }),
+        skipAuth: true,
+      }
+    );
+  }
+
+  async resetPassword(token: string, password: string) {
+    return this.request<{ message: string }>(
+      "/api/reset-password",
+      {
+        method: "POST",
+        body: JSON.stringify({ token, password }),
+        skipAuth: true,
+      }
+    );
+  }
 }
 
 export const api = new ApiService();

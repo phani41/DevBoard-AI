@@ -34,5 +34,18 @@ class TokenResponse(BaseModel):
     user: UserResponse
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    password: str
+
+
+class PasswordResetResponse(BaseModel):
+    message: str
+
+
 class UserInDB(UserResponse):
     hashed_password: str

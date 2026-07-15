@@ -7,10 +7,14 @@ sys.path.insert(0, ".")
 
 from database.connection import Base
 from models import *  # noqa: F401, F403
+from config import settings
 
 config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
+
+# Override the hardcoded sqlalchemy.url with the actual DATABASE_URL from .env
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
 target_metadata = Base.metadata
 
