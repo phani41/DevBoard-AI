@@ -13,10 +13,16 @@ import {
   ChevronLeft,
   Kanban,
   Menu,
+  Calendar,
+  Activity,
+  Bell,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ThemeToggle } from "./theme-toggle";
+import { NotificationBell } from "./notification-bell";
+import { GlobalSearch } from "./global-search";
 
 const navItems = [
   {
@@ -38,6 +44,16 @@ const navItems = [
     label: "Kanban Board",
     href: "/kanban",
     icon: Kanban,
+  },
+  {
+    label: "Calendar",
+    href: "/calendar",
+    icon: Calendar,
+  },
+  {
+    label: "Activity",
+    href: "/activity",
+    icon: Activity,
   },
   {
     label: "Analytics",
@@ -75,6 +91,16 @@ export function Sidebar() {
       >
         <Menu className="h-5 w-5" />
       </Button>
+
+      {/* Top bar with search and notifications */}
+      <div className="fixed top-0 right-0 left-0 lg:left-64 h-16 bg-background/80 backdrop-blur-lg border-b border-border flex items-center justify-between px-4 lg:px-6 z-30 transition-all duration-300">
+        <div className="flex-1" />
+        <div className="flex items-center gap-3">
+          <GlobalSearch />
+          <NotificationBell />
+          <ThemeToggle />
+        </div>
+      </div>
 
       {/* Sidebar */}
       <aside
@@ -155,18 +181,5 @@ export function Sidebar() {
         </div>
       </aside>
     </>
-  );
-}
-
-export function SidebarToggle({ collapsed, setCollapsed }: { collapsed: boolean; setCollapsed: (c: boolean) => void }) {
-  return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={() => setCollapsed(!collapsed)}
-      className="hidden lg:flex"
-    >
-      <ChevronLeft className={cn("h-4 w-4 transition-transform", collapsed && "rotate-180")} />
-    </Button>
   );
 }

@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const publicPaths = ["/login", "/register", "/forgot-password", "/reset-password"];
+const publicPaths = [
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/accept-invitation",
+];
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("devboard_token")?.value;
@@ -16,6 +22,9 @@ export function middleware(request: NextRequest) {
   }
 
   if (token && isPublicPath) {
+    if (pathname.startsWith("/accept-invitation")) {
+      return NextResponse.next(); // Allow authenticated users to accept invitations
+    }
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
