@@ -55,10 +55,11 @@ class Settings(BaseSettings):
             errors.append("RESEND_API_KEY is required in production for password reset emails")
         if errors:
             print("=" * 60)
-            print("PRODUCTION CONFIGURATION NOTES:")
+            print("PRODUCTION CONFIGURATION ERRORS:")
             for e in errors:
                 print(f"  - {e}")
             print("=" * 60)
+            sys.exit(1)
 
 
 settings = Settings()
