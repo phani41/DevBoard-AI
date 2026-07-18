@@ -198,7 +198,7 @@ export default function SettingsPage() {
                     placeholder="Tell us about yourself..."
                     className="flex min-h-[100px] w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   />
-                  {!!profileErrors.bio?.message && <p className="text-sm text-destructive">{profileErrors.bio.message}</p>}
+                  {profileErrors.bio?.message ? <p className="text-sm text-destructive">{profileErrors.bio.message}</p> : null}
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Timezone</label>
@@ -235,17 +235,17 @@ export default function SettingsPage() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Current Password</label>
                   <Input type="password" {...regPassword("current_password")} placeholder="Enter current password" />
-                  {!!passwordErrors.current_password?.message && <p className="text-sm text-destructive">{passwordErrors.current_password.message}</p>}
+                  {passwordErrors.current_password?.message ? <p className="text-sm text-destructive">{passwordErrors.current_password.message}</p> : null}
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">New Password</label>
                   <Input type="password" {...regPassword("new_password")} placeholder="Enter new password" />
-                  {!!passwordErrors.new_password?.message && <p className="text-sm text-destructive">{passwordErrors.new_password.message}</p>}
+                  {passwordErrors.new_password?.message ? <p className="text-sm text-destructive">{passwordErrors.new_password.message}</p> : null}
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Confirm New Password</label>
                   <Input type="password" {...regPassword("confirm_password")} placeholder="Confirm new password" />
-                  {!!passwordErrors.confirm_password?.message && <p className="text-sm text-destructive">{passwordErrors.confirm_password.message}</p>}
+                  {passwordErrors.confirm_password?.message ? <p className="text-sm text-destructive">{passwordErrors.confirm_password.message}</p> : null}
                 </div>
                 <Button type="submit" disabled={passwordSubmitting} className="gap-2">
                   {passwordSubmitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Updating...</> : <><KeyRound className="h-4 w-4" /> Update Password</>}

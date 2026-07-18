@@ -16,6 +16,7 @@ from database.connection import Base, get_db
 from main import app
 from config import settings
 from models.user import User
+from middleware.rate_limit import rate_limit_store
 from services.auth_service import get_password_hash
 
 # ---------------------------------------------------------------------------
@@ -47,7 +48,8 @@ def override_get_db():
 
 @pytest.fixture(autouse=True)
 def setup_database():
-    """Create tables before each test, drop after."""
+    """Create tables and clear rate limits before each test, drop tables after."""
+    rate_limit_store.clear()
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)

@@ -18,8 +18,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./theme-toggle";
-import { NotificationBell } from "./notification-bell";
-import { GlobalSearch } from "./global-search";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -61,20 +59,6 @@ export function Sidebar({ collapsed, onCollapsedChange, mobileOpen, onMobileOpen
       >
         <Menu className="h-5 w-5" />
       </Button>
-
-      {/* Top bar - positioned relative to sidebar width */}
-      <div
-        className={cn(
-          "fixed top-0 right-0 h-16 bg-background/80 backdrop-blur-lg border-b border-border flex items-center justify-end px-4 lg:px-6 z-30 transition-all duration-300",
-          collapsed ? "left-0 lg:left-16" : "left-0 lg:left-64"
-        )}
-      >
-        <div className="flex items-center gap-2 lg:gap-3">
-          <GlobalSearch />
-          <NotificationBell />
-          <ThemeToggle />
-        </div>
-      </div>
 
       {/* Sidebar */}
       <aside
