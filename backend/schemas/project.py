@@ -38,8 +38,3 @@ class ProjectResponse(BaseModel):
     class Config:
         from_attributes = True
         populate_by_name = True
-
-
-class ProjectListResponse(BaseModel):
-    projects: List[ProjectResponse]
-    total: int

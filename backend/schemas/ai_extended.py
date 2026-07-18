@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from typing import Optional, List
-from datetime import datetime
 
 
 class SprintPlanRequest(BaseModel):
@@ -60,11 +59,4 @@ class TaskPrioritizationResponse(BaseModel):
     recommended_first_actions: List[str]
 
 
-class SprintPlanResponse(BaseModel):
-    sprint_name: str
-    duration: str
-    goals: list[str]
-    task_assignments: list[dict]
-    milestones: list[str]
-    estimated_velocity: str
-    risks: list[str]
+

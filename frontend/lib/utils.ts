@@ -22,17 +22,6 @@ export function formatDateShort(date: string | Date | null | undefined): string 
   }).format(new Date(date));
 }
 
-export function formatDateTime(date: string | Date | null | undefined): string {
-  if (!date) return "";
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(new Date(date));
-}
-
 export function formatRelativeTime(date: string | Date | null | undefined): string {
   if (!date) return "";
   const now = new Date();
@@ -124,67 +113,4 @@ export function getStatusLabel(status: string): string {
   }
 }
 
-export function getPriorityLabel(priority: string): string {
-  switch (priority) {
-    case "urgent": return "Urgent";
-    case "high": return "High";
-    case "medium": return "Medium";
-    case "low": return "Low";
-    default: return priority;
-  }
-}
 
-export function truncate(str: string, length: number): string {
-  if (!str) return "";
-  if (str.length <= length) return str;
-  return str.slice(0, length) + "...";
-}
-
-export function isOverdue(date: string | Date | null | undefined): boolean {
-  if (!date) return false;
-  return new Date(date) < new Date();
-}
-
-export function isToday(date: string | Date): boolean {
-  const today = new Date();
-  const target = new Date(date);
-  return (
-    target.getFullYear() === today.getFullYear() &&
-    target.getMonth() === today.getMonth() &&
-    target.getDate() === today.getDate()
-  );
-}
-
-export function getProgressPercentage(checklist: { completed: boolean }[]): number {
-  if (!checklist?.length) return 0;
-  const completed = checklist.filter((item) => item.completed).length;
-  return Math.round((completed / checklist.length) * 100);
-}
-
-export function getDateStatus(dueDate: string | null | undefined, status: string): "overdue" | "due-today" | "upcoming" | "completed" | "none" {
-  if (status === "done") return "completed";
-  if (!dueDate) return "none";
-  if (isOverdue(dueDate)) return "overdue";
-  if (isToday(dueDate)) return "due-today";
-  return "upcoming";
-}
-
-export function validateEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-export function validatePassword(password: string): { valid: boolean; message: string } {
-  if (password.length < 8) return { valid: false, message: "Password must be at least 8 characters" };
-  if (!/[A-Z]/.test(password)) return { valid: false, message: "Password must contain an uppercase letter" };
-  if (!/[a-z]/.test(password)) return { valid: false, message: "Password must contain a lowercase letter" };
-  if (!/[0-9]/.test(password)) return { valid: false, message: "Password must contain a number" };
-  return { valid: true, message: "" };
-}
-
-export function debounce<T extends (...args: any[]) => any>(fn: T, ms: number): (...args: Parameters<T>) => void {
-  let timeoutId: ReturnType<typeof setTimeout>;
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => fn(...args), ms);
-  };
-}

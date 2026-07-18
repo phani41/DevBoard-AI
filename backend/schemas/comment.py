@@ -8,10 +8,6 @@ class CommentCreate(BaseModel):
     task_id: int
 
 
-class CommentUpdate(BaseModel):
-    content: str
-
-
 class CommentResponse(BaseModel):
     id: int
     content: str

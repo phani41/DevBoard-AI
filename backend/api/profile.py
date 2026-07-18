@@ -144,6 +144,7 @@ def change_password(
 def get_user_public(
     user_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """Get a user's public profile."""
     user = db.query(User).filter(User.id == user_id).first()

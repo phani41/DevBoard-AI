@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
 from typing import Optional, List
-from datetime import datetime
 from models.rbac import ActivityLog
 
 
@@ -84,24 +83,6 @@ class ActivityService:
         activities = query.offset(offset).limit(per_page).all()
 
         return activities, total
-
-    ACTIONS = {
-        "project_created": "created this project",
-        "project_updated": "updated the project",
-        "task_created": "created a task",
-        "task_updated": "updated a task",
-        "task_deleted": "deleted a task",
-        "comment_added": "added a comment",
-        "member_joined": "joined the project",
-        "member_removed": "removed a member",
-        "role_changed": "changed a role",
-        "ai_generated": "used AI features",
-        "password_reset": "reset their password",
-        "invitation_sent": "sent an invitation",
-        "invitation_accepted": "accepted an invitation",
-        "attachment_uploaded": "uploaded a file",
-        "ownership_transferred": "transferred ownership",
-    }
 
 
 activity_service = ActivityService()

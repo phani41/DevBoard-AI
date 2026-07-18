@@ -45,7 +45,3 @@ class ResetPasswordRequest(BaseModel):
 
 class PasswordResetResponse(BaseModel):
     message: str
-
-
-class UserInDB(UserResponse):
-    hashed_password: str

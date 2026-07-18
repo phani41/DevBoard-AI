@@ -102,7 +102,7 @@ export default function AnalyticsPage() {
   const weeklyData = useMemo(() => {
     if (!tasks || tasks.length === 0) return [];
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    return generateTimeSeries(tasks, "week", days, (date, dayName) => dayName);
+    return generateTimeSeries(tasks, "week", days, (date) => days[date.getDay()]);
   }, [tasks]);
 
   const monthlyData = useMemo(() => {

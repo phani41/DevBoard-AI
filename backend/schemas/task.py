@@ -69,8 +69,3 @@ class TaskResponse(BaseModel):
     class Config:
         from_attributes = True
         populate_by_name = True
-
-
-class TaskListResponse(BaseModel):
-    tasks: List[TaskResponse]
-    total: int

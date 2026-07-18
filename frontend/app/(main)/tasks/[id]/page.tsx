@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ErrorState } from "@/components/ui/error-boundary";
+import { ErrorState } from "@/components/ui/empty-state";
 import Link from "next/link";
 import {
   ArrowLeft,

@@ -9,12 +9,6 @@ export interface User {
   created_at: string;
 }
 
-export interface AuthResponse {
-  access_token: string;
-  token_type: string;
-  user: User;
-}
-
 export interface LoginData {
   email: string;
   password: string;
@@ -356,26 +350,6 @@ export interface SearchResponse {
 }
 
 // Dashboard types
-export interface DashboardStats {
-  active_projects: number;
-  assigned_tasks: number;
-  tasks_due_today: number;
-  completed_tasks: number;
-  overdue_tasks: number;
-  completed_this_week: number;
-  recent_activity: ActivityLog[];
-  productivity_data: ProductivityData[];
-  ai_usage_count: number;
-}
-
-export interface ActivityItem {
-  id: number;
-  type: string;
-  message: string;
-  user_name: string;
-  created_at: string;
-}
-
 export interface ProductivityData {
   date: string;
   completed: number;

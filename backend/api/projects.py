@@ -4,10 +4,10 @@ from sqlalchemy import func
 from typing import List, Optional
 from database.connection import get_db
 from models.user import User
-from models.project import Project, project_members
+from models.project import Project
 from models.task import Task
 from models.rbac import ProjectMemberRole, ProjectRole
-from schemas.project import ProjectCreate, ProjectUpdate, ProjectResponse, ProjectMemberAdd, ProjectListResponse
+from schemas.project import ProjectCreate, ProjectUpdate, ProjectResponse, ProjectMemberAdd
 from schemas.rbac import ProjectMemberWithRole
 from services.auth_service import get_current_user
 from services.rbac_service import rbac_service

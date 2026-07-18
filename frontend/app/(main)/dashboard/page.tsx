@@ -18,18 +18,15 @@ import {
   TrendingUp,
   ArrowRight,
   Plus,
-  Clock,
   AlertCircle,
   Activity,
-  Brain,
-  Users,
-  AlertTriangle,
   BarChart3,
   Target,
 } from "lucide-react";
-import { formatDate, getPriorityColor, getStatusColor, getStatusLabel, getInitials } from "@/lib/utils";
-import { Project, Task, ActivityLog } from "@/types";
+import { formatDate, getInitials } from "@/lib/utils";
 import { useMemo } from "react";
+import { Project, Task, ActivityLog } from "@/types";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -282,13 +279,4 @@ function PriorityCard({ label, count, color, total }: { label: string; count: nu
   );
 }
 
-function EmptyState({ icon: Icon, title, description, action }: { icon: any; title: string; description: string; action?: React.ReactNode }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-8 text-center">
-      <div className="p-3 rounded-full bg-secondary mb-3"><Icon className="h-6 w-6 text-muted-foreground" /></div>
-      <h3 className="text-sm font-medium">{title}</h3>
-      <p className="text-sm text-muted-foreground mt-1 mb-4">{description}</p>
-      {action}
-    </div>
-  );
-}
+
