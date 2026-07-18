@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ArrowLeft, Bot, Globe, Lock, Cpu, Shield, Zap, Users, Sparkles, Layers, GitFork, BookOpen } from "lucide-react";
+import { ArrowLeft, Bot, Globe, Lock, Cpu, Shield, Zap, Users, Sparkles, Layers, GitFork, BookOpen, Github } from "lucide-react";
 
 const TECH_STACK = [
   { category: "Frontend", items: ["Next.js 15", "React 19", "TypeScript", "Tailwind CSS", "shadcn/ui", "TanStack Query", "React Hook Form", "Zod"] },

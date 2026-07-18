@@ -294,7 +294,7 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-4">
-                You'll need to sign in again to access your projects and tasks.
+                You&apos;ll need to sign in again to access your projects and tasks.
               </p>
               <Button
                 variant="destructive"
@@ -316,7 +316,7 @@ export default function SettingsPage() {
                 <Bell className="h-4 w-4" />
                 Notification Preferences
               </CardTitle>
-              <CardDescription>Choose which notifications you'd like to receive</CardDescription>
+              <CardDescription>Choose which notifications you&apos;d like to receive</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

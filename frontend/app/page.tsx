@@ -23,6 +23,7 @@ import {
   Bot,
   Layers,
   Lock,
+  FileText,
   ChevronRight,
   Star,
   Menu,
@@ -461,7 +462,7 @@ export default function LandingPage() {
                       <Star key={j} className="h-4 w-4 fill-yellow-500 text-yellow-500" />
                     ))}
                   </div>
-                  <p className="text-sm text-muted-foreground mb-6 leading-relaxed">"{t.content}"</p>
+                  <p className="text-sm text-muted-foreground mb-6 leading-relaxed">&ldquo;{t.content}&rdquo;</p>
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
                       <AvatarFallback>{t.avatar}</AvatarFallback>
