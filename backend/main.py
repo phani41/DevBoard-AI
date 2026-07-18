@@ -19,8 +19,9 @@ from middleware.logging import LoggingMiddleware
 from middleware.rate_limit import RateLimitMiddleware
 import os
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
+# Create database tables (development only; production uses Alembic migrations)
+if settings.is_development:
+    Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="DevBoard AI",

@@ -19,13 +19,16 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # Project Member Roles (RBAC)
+    # Create enum type idempotently (PostgreSQL 9.3+)
+    op.execute("CREATE TYPE IF NOT EXISTS projectrole AS ENUM ('OWNER', 'ADMIN', 'MEMBER', 'VIEWER')")
+
+    # Project Member Roles (RBAC) — create_type=False because we created the type above
     op.create_table(
         "project_member_roles",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("project_id", sa.Integer(), sa.ForeignKey("projects.id", ondelete="CASCADE"), nullable=False),
         sa.Column("user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
-        sa.Column("role", sa.Enum("OWNER", "ADMIN", "MEMBER", "VIEWER", name="projectrole"), nullable=False),
+        sa.Column("role", sa.Enum("OWNER", "ADMIN", "MEMBER", "VIEWER", name="projectrole", create_type=False), nullable=False),
         sa.Column("created_at", sa.DateTime(), nullable=True),
         sa.Column("updated_at", sa.DateTime(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
@@ -41,7 +44,7 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("project_id", sa.Integer(), sa.ForeignKey("projects.id", ondelete="CASCADE"), nullable=False),
         sa.Column("email", sa.String(255), nullable=False),
-        sa.Column("role", sa.Enum("OWNER", "ADMIN", "MEMBER", "VIEWER", name="projectrole"), nullable=False),
+        sa.Column("role", sa.Enum("OWNER", "ADMIN", "MEMBER", "VIEWER", name="projectrole", create_type=False), nullable=False),
         sa.Column("token", sa.String(500), nullable=False),
         sa.Column("expires_at", sa.DateTime(), nullable=False),
         sa.Column("status", sa.String(50), nullable=True),
