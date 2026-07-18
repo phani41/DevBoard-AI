@@ -12,6 +12,8 @@ from schemas.rbac import ProjectMemberWithRole
 from services.auth_service import get_current_user
 from services.rbac_service import rbac_service
 from services.activity_service import activity_service
+from services.event_service import event_manager, ProjectEvent
+import asyncio
 
 router = APIRouter(prefix="/api/projects", tags=["Projects"])
 
@@ -207,6 +209,16 @@ def add_member(
         description=f"Added {user.username} to the project",
     )
 
+    # Broadcast real-time event
+    asyncio.create_task(
+        event_manager.publish(ProjectEvent(
+            event="member_joined",
+            project_id=project_id,
+            data={"user_id": user.id, "username": user.username},
+            user_id=current_user.id,
+        ))
+    )
+
     db.refresh(project)
     task_count = db.query(Task).filter(Task.project_id == project.id).count()
     project_data = ProjectResponse.model_validate(project)
@@ -250,6 +262,16 @@ def remove_member(
         user_id=current_user.id,
         project_id=project_id,
         description=f"Removed {user.username} from the project",
+    )
+
+    # Broadcast real-time event
+    asyncio.create_task(
+        event_manager.publish(ProjectEvent(
+            event="member_removed",
+            project_id=project_id,
+            data={"user_id": user.id, "username": user.username},
+            user_id=current_user.id,
+        ))
     )
 
     db.refresh(project)

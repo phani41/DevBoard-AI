@@ -9,6 +9,8 @@ from schemas.rbac import ProjectRoleResponse, ProjectRoleUpdate, ProjectMemberWi
 from services.auth_service import get_current_user
 from services.rbac_service import rbac_service
 from services.activity_service import activity_service
+from services.event_service import event_manager, ProjectEvent
+import asyncio
 
 router = APIRouter(prefix="/api/projects/{project_id}/roles", tags=["RBAC"])
 
@@ -80,6 +82,16 @@ def update_member_roles(
             project_id=project_id,
             description=f"Changed {member.username}'s role to {update.role.value}",
         )
+
+    # Broadcast real-time event
+    asyncio.create_task(
+        event_manager.publish(ProjectEvent(
+            event="role_changed",
+            project_id=project_id,
+            data={"user_id": update.user_id, "role": update.role.value},
+            user_id=current_user.id,
+        ))
+    )
 
     return results
 

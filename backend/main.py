@@ -15,6 +15,8 @@ from api.activity import router as activity_router
 from api.attachments import router as attachments_router
 from api.search import router as search_router
 from api.profile import router as profile_router
+from api.events import router as events_router
+from api.contact import router as contact_router
 from middleware.logging import LoggingMiddleware
 from middleware.rate_limit import RateLimitMiddleware
 import os
@@ -58,6 +60,8 @@ app.include_router(activity_router)
 app.include_router(attachments_router)
 app.include_router(search_router)
 app.include_router(profile_router)
+app.include_router(events_router)
+app.include_router(contact_router)
 
 # Mount uploads directory for serving files
 uploads_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")

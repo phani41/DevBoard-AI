@@ -12,6 +12,7 @@ from models.user import User
 from schemas.user import TokenResponse, UserResponse
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/api/login", auto_error=False)
 
 # Argon2id password hasher — the modern, memory-hard algorithm
 # recommended by OWASP and the FastAPI ecosystem.
@@ -58,6 +59,28 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     if user is None:
         raise credentials_exception
     return user
+
+
+def get_current_user_optional(
+    token: Optional[str] = Depends(oauth2_scheme_optional),
+    db: Session = Depends(get_db),
+) -> Optional[User]:
+    """Like get_current_user but returns None instead of raising when unauthenticated.
+
+    Uses auto_error=False so unauthenticated requests pass through.
+    Useful for public endpoints that optionally personalize the response.
+    """
+    if token is None:
+        return None
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        sub = payload.get("sub")
+        if sub is None:
+            return None
+        user = db.query(User).filter(User.id == int(sub)).first()
+        return user
+    except JWTError:
+        return None
 
 
 def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:

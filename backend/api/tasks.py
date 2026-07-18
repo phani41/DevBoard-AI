@@ -12,6 +12,8 @@ from services.auth_service import get_current_user
 from services.rbac_service import rbac_service
 from services.activity_service import activity_service
 from services.notification_service import notification_service
+from services.event_service import event_manager, ProjectEvent
+import asyncio
 
 router = APIRouter(prefix="/api/tasks", tags=["Tasks"])
 
@@ -64,13 +66,27 @@ def list_tasks(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    # Get user's accessible project IDs (security: scope by membership)
+    user_project_ids = [
+        p.id for p in db.query(Project).filter(
+            (Project.owner_id == current_user.id) |
+            (Project.members.any(id=current_user.id))
+        ).all()
+    ]
+
     query = db.query(Task).join(Project)
 
     if project_id:
+        # Scoped to specific project (must be accessible)
+        if project_id not in user_project_ids:
+            return []
         query = query.filter(Task.project_id == project_id)
         project = db.query(Project).filter(Project.id == project_id).first()
         if project:
             _check_project_access(project, current_user, db)
+    else:
+        # No project_id provided — scope by all user's accessible projects
+        query = query.filter(Project.id.in_(user_project_ids))
 
     if status:
         query = query.filter(Task.status == status)
@@ -141,6 +157,16 @@ def create_task(
             message=f"You have been assigned a new task in {project.name}",
             link=f"/tasks/{task.id}",
         )
+
+    # Broadcast real-time event
+    asyncio.create_task(
+        event_manager.publish(ProjectEvent(
+            event="task_created",
+            project_id=project.id,
+            data={"task_id": task.id, "title": task.title, "status": task.status},
+            user_id=current_user.id,
+        ))
+    )
 
     return _serialize_task(task, db)
 
@@ -218,6 +244,16 @@ def update_task(
             link=f"/tasks/{task.id}",
         )
 
+    # Broadcast real-time event
+    asyncio.create_task(
+        event_manager.publish(ProjectEvent(
+            event="task_updated",
+            project_id=task.project_id,
+            data={"task_id": task.id, "title": task.title, "status": task.status, "updated_fields": list(update_data.keys())},
+            user_id=current_user.id,
+        ))
+    )
+
     return _serialize_task(task, db)
 
 
@@ -236,6 +272,9 @@ def delete_task(
         permission = "task:delete_own" if task.assignee_id == current_user.id else "task:delete_any"
         _check_project_access(project, current_user, db, permission)
 
+    task_project_id = task.project_id
+    task_title = task.title
+
     activity_service.log(
         db=db,
         action="task_deleted",
@@ -246,6 +285,17 @@ def delete_task(
 
     db.delete(task)
     db.commit()
+
+    # Broadcast real-time event
+    asyncio.create_task(
+        event_manager.publish(ProjectEvent(
+            event="task_deleted",
+            project_id=task_project_id,
+            data={"task_id": task_id, "title": task_title},
+            user_id=current_user.id,
+        ))
+    )
+
     return None
 
 
@@ -346,6 +396,16 @@ def create_comment(
             message=f"{current_user.username} commented on your task",
             link=f"/tasks/{task.id}",
         )
+
+    # Broadcast real-time event
+    asyncio.create_task(
+        event_manager.publish(ProjectEvent(
+            event="comment_added",
+            project_id=project.id if project else None,
+            data={"task_id": task_id, "comment_id": comment.id, "author": current_user.username},
+            user_id=current_user.id,
+        ))
+    )
 
     return CommentResponse(
         id=comment.id,
