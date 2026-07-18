@@ -24,9 +24,10 @@ import {
   Target,
 } from "lucide-react";
 import { formatDate, getInitials } from "@/lib/utils";
-import { useMemo } from "react";
+import { useMemo, Suspense } from "react";
 import { Project, Task, ActivityLog } from "@/types";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -168,69 +169,14 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        {/* Sidebar */}
+        {/* Sidebar — loads independently with Suspense */}
         <div className="space-y-6">
-          {/* Recent Activity */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5 text-primary" />
-                Recent Activity
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {activityData && activityData.activities.length > 0 ? (
-                <div className="space-y-3">
-                  {activityData.activities.slice(0, 5).map((activity: ActivityLog) => (
-                    <div key={activity.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-secondary/50 transition-colors">
-                      <Avatar className="h-7 w-7 shrink-0">
-                        <AvatarFallback className="text-[9px]">{activity.user_name ? getInitials(activity.user_name) : "S"}</AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0">
-                        <p className="text-xs text-muted-foreground">{activity.description || activity.action.replace(/_/g, " ")}</p>
-                        <p className="text-[10px] text-muted-foreground/60 mt-0.5">{formatDate(activity.created_at)}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <EmptyState icon={Activity} title="No activity" description="Your activity will appear here" />
-              )}
-              {activityData && activityData.activities.length > 0 && (
-                <Link href="/activity">
-                  <Button variant="ghost" size="sm" className="w-full mt-3 gap-2">View all activity <ArrowRight className="h-3 w-3" /></Button>
-                </Link>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Project Progress */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-primary" />
-                Project Progress
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {projectProgress.slice(0, 4).map((p: any) => (
-                  <Link key={p.id} href={`/projects/${p.id}`} className="block group">
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="text-xs font-medium truncate group-hover:text-primary transition-colors">{p.name}</p>
-                      <span className="text-[10px] text-muted-foreground">{p.done}/{p.total}</span>
-                    </div>
-                    <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
-                      <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${p.progress}%` }} />
-                    </div>
-                  </Link>
-                ))}
-              </div>
-              {projectProgress.length > 0 && (
-                <Link href="/projects"><Button variant="ghost" size="sm" className="w-full mt-3 gap-2">All Projects <ArrowRight className="h-3 w-3" /></Button></Link>
-              )}
-            </CardContent>
-          </Card>
+          <Suspense fallback={<SidebarSkeleton />}>
+            <ActivitySidebar activityData={activityData} />
+          </Suspense>
+          <Suspense fallback={<SidebarSkeleton />}>
+            <ProgressSidebar projectProgress={projectProgress} />
+          </Suspense>
         </div>
       </div>
     </div>
@@ -279,4 +225,99 @@ function PriorityCard({ label, count, color, total }: { label: string; count: nu
   );
 }
 
+function SidebarSkeleton() {
+  return (
+    <Card>
+      <CardContent className="p-4 space-y-3">
+        <Skeleton className="h-4 w-28" />
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-3">
+            <Skeleton className="h-7 w-7 rounded-full" />
+            <div className="flex-1 space-y-1">
+              <Skeleton className="h-3 w-3/4" />
+              <Skeleton className="h-2 w-1/2" />
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ActivitySidebar({ activityData }: { activityData: any }) {
+  if (!activityData || !activityData.activities || activityData.activities.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="h-5 w-5 text-primary" />
+            Recent Activity
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <EmptyState icon={Activity} title="No activity" description="Your activity will appear here" />
+        </CardContent>
+      </Card>
+    );
+  }
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Activity className="h-5 w-5 text-primary" />
+          Recent Activity
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          {activityData.activities.slice(0, 5).map((activity: ActivityLog) => (
+            <div key={activity.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-secondary/50 transition-colors">
+              <Avatar className="h-7 w-7 shrink-0">
+                <AvatarFallback className="text-[9px]">{activity.user_name ? getInitials(activity.user_name) : "S"}</AvatarFallback>
+              </Avatar>
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground">{activity.description || activity.action.replace(/_/g, " ")}</p>
+                <p className="text-[10px] text-muted-foreground/60 mt-0.5">{formatDate(activity.created_at)}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <Link href="/activity">
+          <Button variant="ghost" size="sm" className="w-full mt-3 gap-2">View all activity <ArrowRight className="h-3 w-3" /></Button>
+        </Link>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ProgressSidebar({ projectProgress }: { projectProgress: any[] }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Target className="h-5 w-5 text-primary" />
+          Project Progress
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          {projectProgress.slice(0, 4).map((p: any) => (
+            <Link key={p.id} href={`/projects/${p.id}`} className="block group">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs font-medium truncate group-hover:text-primary transition-colors">{p.name}</p>
+                <span className="text-[10px] text-muted-foreground">{p.done}/{p.total}</span>
+              </div>
+              <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${p.progress}%` }} />
+              </div>
+            </Link>
+          ))}
+        </div>
+        {projectProgress.length > 0 && (
+          <Link href="/projects"><Button variant="ghost" size="sm" className="w-full mt-3 gap-2">All Projects <ArrowRight className="h-3 w-3" /></Button></Link>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 

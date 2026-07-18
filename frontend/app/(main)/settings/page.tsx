@@ -21,6 +21,7 @@ import {
   Globe,
   KeyRound,
   Activity,
+  LogOut,
 } from "lucide-react";
 import { getInitials, formatDate } from "@/lib/utils";
 import { toast } from "sonner";
@@ -50,7 +51,7 @@ const TIMEZONES = [
 ];
 
 export default function SettingsPage() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { data: profile, isLoading: profileLoading } = useProfile();
   const updateProfile = useUpdateProfile();
   const uploadAvatar = useUploadAvatar();
@@ -280,6 +281,29 @@ export default function SettingsPage() {
                   <Badge variant="success" className="capitalize">{user?.is_active ? "Active" : "Inactive"}</Badge>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2 text-destructive">
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </CardTitle>
+              <CardDescription>Sign out of your account on this device</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                You'll need to sign in again to access your projects and tasks.
+              </p>
+              <Button
+                variant="destructive"
+                onClick={() => logout()}
+                className="gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
