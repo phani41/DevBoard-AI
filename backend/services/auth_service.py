@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 from typing import Optional
+
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+from pwdlib import PasswordHash
 from sqlalchemy.orm import Session
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -10,16 +11,22 @@ from database.connection import get_db
 from models.user import User
 from schemas.user import TokenResponse, UserResponse
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
+
+# Argon2id password hasher — the modern, memory-hard algorithm
+# recommended by OWASP and the FastAPI ecosystem.
+# Eliminates bcrypt's native 72-byte password length limit.
+_password_hash = PasswordHash.recommended()
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    """Verify a password against its Argon2id hash."""
+    return _password_hash.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+    """Hash a password using Argon2id via pwdlib."""
+    return _password_hash.hash(password)
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
