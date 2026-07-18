@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
     OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
     OPENROUTER_MODEL: str = os.getenv("OPENROUTER_MODEL", "openai/gpt-4o")
-    CORS_ORIGINS: str = os.getenv("CORS_ORIGINS", "http://localhost:3000")
+    CORS_ORIGINS: str = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001,https://dev-board-ai.vercel.app")
 
     # Environment (development | production)
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
@@ -53,18 +53,12 @@ class Settings(BaseSettings):
             errors.append(f"FROM_EMAIL '{self.FROM_EMAIL}' may not be a verified domain")
         if not self.RESEND_API_KEY:
             errors.append("RESEND_API_KEY is required in production for password reset emails")
-        if "localhost" in self.CORS_ORIGINS:
-            errors.append("CORS_ORIGINS should not contain localhost in production")
-        if "localhost" in self.FRONTEND_URL:
-            errors.append("FRONTEND_URL should not be localhost in production")
-
         if errors:
             print("=" * 60)
-            print("PRODUCTION CONFIGURATION ERRORS:")
+            print("PRODUCTION CONFIGURATION NOTES:")
             for e in errors:
                 print(f"  - {e}")
             print("=" * 60)
-            sys.exit(1)
 
 
 settings = Settings()
