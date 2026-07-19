@@ -2,11 +2,14 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const publicPaths = [
+  "/",
   "/login",
   "/register",
   "/forgot-password",
   "/reset-password",
   "/accept-invitation",
+  "/about",
+  "/contact",
 ];
 
 export function middleware(request: NextRequest) {
@@ -23,7 +26,7 @@ export function middleware(request: NextRequest) {
 
   if (token && isPublicPath) {
     if (pathname.startsWith("/accept-invitation")) {
-      return NextResponse.next(); // Allow authenticated users to accept invitations
+      return NextResponse.next();
     }
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
