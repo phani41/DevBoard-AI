@@ -3,6 +3,7 @@ from typing import Optional
 
 from jose import JWTError, jwt
 from pwdlib import PasswordHash
+from pwdlib.exceptions import UnknownHashError
 from sqlalchemy.orm import Session
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -21,8 +22,28 @@ _password_hash = PasswordHash.recommended()
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify a password against its Argon2id hash."""
-    return _password_hash.verify(plain_password, hashed_password)
+    """Verify a password against its hash.
+
+    First tries pwdlib (Argon2id / bcrypt). Falls back to raw bcrypt
+    for legacy hashes created by older deployments.
+    """
+    try:
+        return _password_hash.verify(plain_password, hashed_password)
+    except UnknownHashError:
+        # Fallback: try bcrypt directly — handles hashes from older Render deploys
+        pass
+    except Exception:
+        return False
+
+    try:
+        import bcrypt as _bcrypt
+
+        return _bcrypt.checkpw(
+            plain_password.encode("utf-8"),
+            hashed_password.encode("utf-8"),
+        )
+    except Exception:
+        return False
 
 
 def get_password_hash(password: str) -> str:

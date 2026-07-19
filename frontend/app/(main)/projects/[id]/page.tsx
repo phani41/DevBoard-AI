@@ -318,20 +318,21 @@ export default function ProjectDetailPage() {
             <h2 className="text-lg font-semibold">All Tasks</h2>
             {canCreateTask && (
               <Dialog open={taskDialogOpen} onOpenChange={setTaskDialogOpen}>
-              <DialogTrigger asChild>
-                <Button size="sm" className="gap-2"><Plus className="h-4 w-4" /> Add Task</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader><DialogTitle>Create Task</DialogTitle></DialogHeader>
-                <div className="space-y-4">
-                  <Input value={newTaskTitle} onChange={(e) => setNewTaskTitle(e.target.value)}
-                    placeholder="Enter task title" onKeyDown={(e) => e.key === "Enter" && handleCreateTask()} />
-                  <Button onClick={handleCreateTask} className="w-full">
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Create Task
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="gap-2"><Plus className="h-4 w-4" /> Add Task</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader><DialogTitle>Create Task</DialogTitle></DialogHeader>
+                  <div className="space-y-4">
+                    <Input value={newTaskTitle} onChange={(e) => setNewTaskTitle(e.target.value)}
+                      placeholder="Enter task title" onKeyDown={(e) => e.key === "Enter" && handleCreateTask()} />
+                    <Button onClick={handleCreateTask} className="w-full">
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Create Task
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
 
           {tasksLoading ? (
@@ -367,47 +368,48 @@ export default function ProjectDetailPage() {
         </TabsContent>
 
         {/* ── Members Tab ── */}
-        <TabsContent value="members" className="mt-6 space-y-4">            <div className="flex items-center justify-between">
+        <TabsContent value="members" className="mt-6 space-y-4">
+          <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Team Members</h2>
             <div className="flex items-center gap-2">
               {canInvite && (
                 <>
-              <Button variant="outline" size="sm" onClick={handleCopyInviteLink} className="gap-2">
-                {copiedEmail === "link" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                Copy Invite Link
-              </Button>
-              <Dialog open={memberDialogOpen} onOpenChange={setMemberDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button size="sm" className="gap-2"><UserPlus className="h-4 w-4" /> Invite</Button>
-                </DialogTrigger>
+                  <Button variant="outline" size="sm" onClick={handleCopyInviteLink} className="gap-2">
+                    {copiedEmail === "link" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    Copy Invite Link
+                  </Button>
+                  <Dialog open={memberDialogOpen} onOpenChange={setMemberDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button size="sm" className="gap-2"><UserPlus className="h-4 w-4" /> Invite</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader><DialogTitle>Invite Member</DialogTitle></DialogHeader>
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Email</label>
+                          <Input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} type="email" placeholder="colleague@company.com" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Role</label>
+                          <Select value={inviteRole} onValueChange={setInviteRole}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              {ROLE_OPTIONS.map((r) => (
+                                <SelectItem key={r.value} value={r.value}>
+                                  <div><p className="capitalize">{r.label}</p><p className="text-xs text-muted-foreground">{r.description}</p></div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <Button onClick={handleInvite} disabled={membersLoading || !inviteEmail.trim()} className="w-full gap-2">
+                          {membersLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Sending...</> : <><Mail className="h-4 w-4" /> Send Invitation</>}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </>
               )}
-                <DialogContent>
-                  <DialogHeader><DialogTitle>Invite Member</DialogTitle></DialogHeader>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Email</label>
-                      <Input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} type="email" placeholder="colleague@company.com" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Role</label>
-                      <Select value={inviteRole} onValueChange={setInviteRole}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          {ROLE_OPTIONS.map((r) => (
-                            <SelectItem key={r.value} value={r.value}>
-                              <div><p className="capitalize">{r.label}</p><p className="text-xs text-muted-foreground">{r.description}</p></div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <Button onClick={handleInvite} disabled={membersLoading || !inviteEmail.trim()} className="w-full gap-2">
-                      {membersLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Sending...</> : <><Mail className="h-4 w-4" /> Send Invitation</>}
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
             </div>
           </div>
 
