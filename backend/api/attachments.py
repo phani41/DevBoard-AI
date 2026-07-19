@@ -14,7 +14,9 @@ from schemas.attachment import AttachmentResponse, AttachmentUploadResponse
 from services.auth_service import get_current_user
 from services.rbac_service import rbac_service
 from services.activity_service import activity_service
+from services.event_service import event_manager, ProjectEvent
 from config import settings
+import asyncio
 
 router = APIRouter(prefix="/api/attachments", tags=["Attachments"])
 
@@ -179,6 +181,17 @@ async def upload_attachment(
         task_id=task_id,
         description=f"Uploaded {file.filename}",
     )
+
+    # Broadcast real-time event
+    if project:
+        asyncio.create_task(
+            event_manager.publish(ProjectEvent(
+                event="file_uploaded",
+                project_id=project.id,
+                data={"task_id": task_id, "attachment_id": attachment.id, "filename": file.filename},
+                user_id=current_user.id,
+            ))
+        )
 
     return AttachmentUploadResponse(
         id=attachment.id,

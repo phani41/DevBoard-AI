@@ -72,17 +72,31 @@ export function useSSE(projectId: number | undefined) {
           case "task_deleted":
             queryClient.invalidateQueries({ queryKey: ["tasks"] });
             queryClient.invalidateQueries({ queryKey: ["task", data.task_id] });
+            queryClient.invalidateQueries({ queryKey: ["activity"] });
             break;
           case "comment_added":
             queryClient.invalidateQueries({ queryKey: ["comments", data.task_id] });
+            queryClient.invalidateQueries({ queryKey: ["tasks"] });
+            queryClient.invalidateQueries({ queryKey: ["activity"] });
             break;
           case "member_joined":
           case "member_removed":
             queryClient.invalidateQueries({ queryKey: ["project", projectId] });
             queryClient.invalidateQueries({ queryKey: ["projects"] });
+            queryClient.invalidateQueries({ queryKey: ["project-members", projectId] });
+            queryClient.invalidateQueries({ queryKey: ["activity"] });
             break;
           case "role_changed":
             queryClient.invalidateQueries({ queryKey: ["project", projectId] });
+            queryClient.invalidateQueries({ queryKey: ["project-members", projectId] });
+            queryClient.invalidateQueries({ queryKey: ["activity"] });
+            break;
+          case "file_uploaded":
+            queryClient.invalidateQueries({ queryKey: ["attachments", data.task_id] });
+            queryClient.invalidateQueries({ queryKey: ["activity"] });
+            break;
+          case "invitation_sent":
+            queryClient.invalidateQueries({ queryKey: ["invitations"] });
             break;
         }
       } catch (e) {

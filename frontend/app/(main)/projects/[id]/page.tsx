@@ -6,6 +6,7 @@ import { useTasks, useCreateTask, useUpdateTask } from "@/hooks/useTasks";
 import { useProjectActivity } from "@/hooks/useActivity";
 import { useAuth } from "@/hooks/useAuth";
 import { useSSE } from "@/hooks/useSSE";
+import { useProjectRole } from "@/hooks/useRBAC";
 import { CardSkeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -238,6 +239,7 @@ export default function ProjectDetailPage() {
   if (projectLoading) return <CardSkeleton />;
   if (!project) return <div className="flex items-center justify-center h-96 text-muted-foreground">Project not found</div>;
 
+  const { role: myRole, canInvite, canCreateTask, canEdit, canDelete, canRemoveMember, canManageRoles } = useProjectRole(projectId);
   const isOwner = project.owner_id === user?.id;
 
   return (
@@ -264,13 +266,13 @@ export default function ProjectDetailPage() {
                 </h1>
               )}
               <Badge variant={project.status === "active" ? "success" : "secondary"} className="capitalize">{project.status}</Badge>
-              {isOwner && <Badge variant="outline" className="text-[10px]"><Crown className="h-3 w-3 mr-1" />Owner</Badge>}
+              {myRole && <Badge variant="outline" className="text-[10px]"><Crown className={`h-3 w-3 mr-1 ${myRole === 'owner' || myRole === 'admin' ? 'text-yellow-500' : ''}`} />{myRole}</Badge>}
             </div>
             <p className="text-muted-foreground mt-1 text-sm">{project.description || "No description"}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {isOwner && (
+          {canDelete && (
             <Button variant="destructive" size="sm" onClick={handleDelete} className="gap-2">
               <Trash2 className="h-4 w-4" /> Delete
             </Button>
@@ -314,7 +316,8 @@ export default function ProjectDetailPage() {
         <TabsContent value="tasks" className="mt-6 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">All Tasks</h2>
-            <Dialog open={taskDialogOpen} onOpenChange={setTaskDialogOpen}>
+            {canCreateTask && (
+              <Dialog open={taskDialogOpen} onOpenChange={setTaskDialogOpen}>
               <DialogTrigger asChild>
                 <Button size="sm" className="gap-2"><Plus className="h-4 w-4" /> Add Task</Button>
               </DialogTrigger>
@@ -364,10 +367,11 @@ export default function ProjectDetailPage() {
         </TabsContent>
 
         {/* ── Members Tab ── */}
-        <TabsContent value="members" className="mt-6 space-y-4">
-          <div className="flex items-center justify-between">
+        <TabsContent value="members" className="mt-6 space-y-4">            <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Team Members</h2>
             <div className="flex items-center gap-2">
+              {canInvite && (
+                <>
               <Button variant="outline" size="sm" onClick={handleCopyInviteLink} className="gap-2">
                 {copiedEmail === "link" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 Copy Invite Link
@@ -376,6 +380,8 @@ export default function ProjectDetailPage() {
                 <DialogTrigger asChild>
                   <Button size="sm" className="gap-2"><UserPlus className="h-4 w-4" /> Invite</Button>
                 </DialogTrigger>
+                </>
+              )}
                 <DialogContent>
                   <DialogHeader><DialogTitle>Invite Member</DialogTitle></DialogHeader>
                   <div className="space-y-4">

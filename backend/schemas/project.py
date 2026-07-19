@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
 from schemas.user import UserResponse
+from models.rbac import ProjectRole
 
 
 class ProjectCreate(BaseModel):
@@ -32,9 +33,11 @@ class ProjectResponse(BaseModel):
     owner: Optional[UserResponse] = None
     members: List[UserResponse] = []
     task_count: Optional[int] = None
+    user_role: Optional[ProjectRole] = None
     created_at: datetime
     updated_at: datetime
 
     class Config:
         from_attributes = True
         populate_by_name = True
+        use_enum_values = True

@@ -34,6 +34,7 @@ export interface Project {
   owner?: User;
   members: User[];
   task_count?: number;
+  user_role?: ProjectRole;
   created_at: string;
   updated_at: string;
 }

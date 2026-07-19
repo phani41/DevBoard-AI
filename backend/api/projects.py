@@ -45,10 +45,8 @@ def list_projects(
         task_count = db.query(Task).filter(Task.project_id == project.id).count()
         project_data = ProjectResponse.model_validate(project)
         project_data.task_count = task_count
+        project_data.user_role = rbac_service.get_user_role(db, project.id, current_user.id) or ProjectRole.OWNER
         result.append(project_data)
-
-    if page == 1 and per_page >= total:
-        return result
 
     return result
 
@@ -90,6 +88,7 @@ def create_project(
 
     project_data = ProjectResponse.model_validate(project)
     project_data.task_count = 0
+    project_data.user_role = ProjectRole.OWNER
     return project_data
 
 
@@ -108,6 +107,7 @@ def get_project(
     task_count = db.query(Task).filter(Task.project_id == project.id).count()
     project_data = ProjectResponse.model_validate(project)
     project_data.task_count = task_count
+    project_data.user_role = rbac_service.get_user_role(db, project.id, current_user.id) or ProjectRole.OWNER
     return project_data
 
 
@@ -143,6 +143,7 @@ def update_project(
     task_count = db.query(Task).filter(Task.project_id == project.id).count()
     project_data = ProjectResponse.model_validate(project)
     project_data.task_count = task_count
+    project_data.user_role = rbac_service.get_user_role(db, project.id, current_user.id) or ProjectRole.OWNER
     return project_data
 
 
@@ -223,6 +224,7 @@ def add_member(
     task_count = db.query(Task).filter(Task.project_id == project.id).count()
     project_data = ProjectResponse.model_validate(project)
     project_data.task_count = task_count
+    project_data.user_role = rbac_service.get_user_role(db, project.id, current_user.id) or ProjectRole.OWNER
     return project_data
 
 
@@ -278,6 +280,7 @@ def remove_member(
     task_count = db.query(Task).filter(Task.project_id == project.id).count()
     project_data = ProjectResponse.model_validate(project)
     project_data.task_count = task_count
+    project_data.user_role = rbac_service.get_user_role(db, project.id, current_user.id) or ProjectRole.OWNER
     return project_data
 
 
